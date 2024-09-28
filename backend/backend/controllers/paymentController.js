@@ -60,10 +60,7 @@ const createPaymentIntent = async (req, res) => {
     }
 };
 
-// Define the processPayment function
-const processPayment = (req, res) => {
-    res.status(200).json({ message: 'Payment processed successfully' });
-};
+
 
 // Define the getPaymentStatus function
 const getPaymentStatus = async (req, res) => {
@@ -113,6 +110,41 @@ const handlePaymentNotification = async (req, res) => {
     }
 
     res.status(200).send('Webhook received');
+};
+
+
+const processPayment = async (req, res) => {
+    const { amount, currency, source } = req.body; // Expecting these fields in the request body
+
+    // Basic validation
+    if (!amount || !currency || !source) {
+        return res.status(400).json({ error: 'Amount, currency, and source are required' });
+    }
+
+    try {
+        // Create a new payment
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount,
+            currency,
+            payment_method: source, // This should be the payment method ID obtained from the frontend
+            confirmation_method: 'manual', // Change as per your requirement
+            confirm: true, // Automatically confirm the payment
+        });
+
+        // Respond with success
+        res.status(200).json({
+            success: true,
+            message: 'Payment processed successfully',
+            payment: paymentIntent,
+        });
+    } catch (error) {
+        // Handle errors from Stripe
+        if (error.code === 'card_error') {
+            return res.status(400).json({ error: error.message });
+        }
+        console.error('Payment processing error:', error);
+        res.status(500).json({ error: 'Payment failed', details: error.message });
+    }
 };
 
 // Export all the functions

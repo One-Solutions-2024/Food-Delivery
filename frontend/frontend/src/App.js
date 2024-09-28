@@ -1,29 +1,28 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
-import Restaurant from './pages/Restaurant';
 import Order from './pages/Order';
-import Tracking from './pages/Tracking';
 import NotFound from './pages/NotFound'; // Create a NotFound component for 404 errors
 import Navbar from './components/Navbar'; // Create a Navbar component
 import { StripeProvider } from '@stripe/stripe-react-native';
 import PaymentScreen from './screens/PaymentScreen'; // Import the PaymentScreen component
 import NotificationsComponent from './components/Notifications';
-import OrderScreen from './screens/OrderScreen'; // Order management screen
-import DeliveryTracking from './screens/DeliveryTracking'; // Tracking screen
+import OrderStatusScreen from './screens/OrderStatusScreen'; // Order management screen
+import TrackingScreen from './screens/TrackingScreen'; // Order management screen
+
+import DeliveryScreen from './screens/DeliveryScreen'; // Tracking screen
 import OrderDetails from './components/OrderDetails'; // Order details component
 import AdminDashboard from './screens/AdminDashboard';
 import Notifications from './components/Notifications';
 import RealTimeUpdates from './components/RealTimeUpdates';
 import Sidebar from './components/Sidebar'; // Optional sidebar for admin/dashboard navigation
 
+import RestaurantList from './components/RestaurantList'
 
-
-import './styles/App.css'; // Import any global styles
 
 const App = () => {
   return (
-    <Router>
+    <BrowserRouter>
       <div className="App">
       <Sidebar />
 
@@ -34,21 +33,21 @@ const App = () => {
         </header>
 
         <main>
-          <Switch>
-            <Route path="/" exact component={Home} />
-            <Route path="/restaurant/:id" component={Restaurant} />
-            <Route path="/order" component={Order} />
-            <Route path="/order" component={OrderScreen} />
-            <Route path="/order/:orderId" component={OrderDetails} /> {/* Dynamic route for order details */}
-            <Route path="/tracking" component={Tracking} />
-            <Route path="/admin-dashboard" component={AdminDashboard} />
-            <Route path="/track-delivery" component={DeliveryTracking} />
-            <Route path="/payment" component={PaymentScreen} />
-            <Route path="/realtime-updates" component={RealTimeUpdates} />
-            <Route path="/notifications" component={Notifications} />
-
-            <Route component={NotFound} /> {/* Catch-all for undefined routes */}
-          </Switch>
+          <Routes>
+            <Route path="/" exact element={<Home />} />
+            <Route path="/restaurant/:id" element={<RestaurantList />} />
+            <Route path="/order" element={<Order />} />
+            <Route path="/order" element={<OrderStatusScreen />} />
+            <Route path="/order/:orderId" element={<OrderDetails />} /> {/* Dynamic route for order details */}
+            <Route path="/tracking" element={<TrackingScreen />} />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/track-delivery" element={<DeliveryScreen />} />
+            <Route path="/payment" element={<PaymentScreen />} />
+            <Route path="/realtime-updates" element={<RealTimeUpdates />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/not-found" element={<NotFound />} />
+            <Route path="*" element={<Navigate to="/not-found" />} />
+            </Routes>
         </main>
         <StripeProvider publishableKey="YOUR_PUBLISHABLE_KEY">
           <PaymentScreen />
@@ -59,7 +58,7 @@ const App = () => {
           {/* Add your footer components here */}
         </footer>
       </div>
-    </Router>
+    </BrowserRouter>
   );
 };
 

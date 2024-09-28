@@ -2,15 +2,14 @@ const jwt = require('jsonwebtoken');
 
 // Middleware to protect routes
 const auth = (req, res, next) => {
-    // Get token from Authorization header (Bearer token)
     const authHeader = req.header('Authorization');
-    
+
     // Check if the Authorization header is present and properly formatted
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({ message: 'No token, authorization denied' });
     }
 
-    const token = authHeader.split(' ')[1]; // Safer way to extract the token
+    const token = authHeader.split(' ')[1]; // Extract the token
 
     if (!token) {
         return res.status(401).json({ message: 'No token, authorization denied' });
@@ -22,11 +21,10 @@ const auth = (req, res, next) => {
         
         // Attach the decoded token (e.g., delivery boy's ID) to the request object
         req.deliveryBoy = decoded.id;
-        
+
         // Proceed to the next middleware or route handler
         next();
     } catch (err) {
-        // Customize error messages based on error type
         let message = 'Token is not valid';
         if (err.name === 'TokenExpiredError') {
             message = 'Token has expired';

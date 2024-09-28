@@ -4,11 +4,14 @@ const Menu = require('../models/Menu');
 
 // Register a new restaurant
 exports.registerRestaurant = [
+    // Validation rules
     check('name').notEmpty().withMessage('Name is required.'),
     check('address').notEmpty().withMessage('Address is required.'),
     check('contactNumber').notEmpty().withMessage('Contact number is required.'),
-    
+
+    // Async handler function
     async (req, res) => {
+        // Handle validation errors
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             return res.status(400).json({ errors: errors.array() });
@@ -17,8 +20,11 @@ exports.registerRestaurant = [
         const { name, address, contactNumber } = req.body;
 
         try {
+            // Create new restaurant and save
             const newRestaurant = new Restaurant({ name, address, contactNumber });
             await newRestaurant.save();
+
+            // Respond with success message
             res.status(201).json({ message: 'Restaurant registered successfully', restaurant: newRestaurant });
         } catch (error) {
             console.error('Error registering restaurant:', error);
@@ -107,7 +113,7 @@ exports.addMenuItem = [
     check('restaurantId').notEmpty().withMessage('Restaurant ID is required.'),
     check('itemName').notEmpty().withMessage('Item name is required.'),
     check('price').isNumeric().withMessage('Price must be a number.'),
-    
+
     async (req, res) => {
         const errors = validationResult(req);
         if (!errors.isEmpty()) {

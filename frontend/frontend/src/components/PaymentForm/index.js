@@ -17,8 +17,11 @@ const PaymentForm = ({ orderId }) => {
         setSuccessMessage('');
         setErrorMessage('');
 
-        if (amount <= 0) {
-            setErrorMessage('Amount must be greater than 0.');
+        // Convert amount to number for validation
+        const numericAmount = Number(amount);
+
+        if (isNaN(numericAmount) || numericAmount <= 0) {
+            setErrorMessage('Amount must be a valid number greater than 0.');
             setLoading(false);
             return;
         }
@@ -26,17 +29,24 @@ const PaymentForm = ({ orderId }) => {
         try {
             const response = await axios.post('/api/payments', {
                 orderId,
-                amount,
+                amount: numericAmount, // Send numeric amount
                 paymentMethod,
             });
 
             if (response.data.success) {
                 setSuccessMessage('Payment successful! Thank you for your order.');
+                setAmount('');  // Reset amount field
+                setPaymentMethod('Credit Card'); // Reset payment method
             } else {
                 setErrorMessage('Payment failed. Please try again.');
             }
         } catch (err) {
-            setErrorMessage('Error processing payment. Please check your details and try again.');
+            // Handle error based on response
+            if (err.response) {
+                setErrorMessage(`Error: ${err.response.data.message || 'Error processing payment.'}`);
+            } else {
+                setErrorMessage('Error processing payment. Please check your details and try again.');
+            }
         } finally {
             setLoading(false);
         }
@@ -54,6 +64,7 @@ const PaymentForm = ({ orderId }) => {
                             value={amount}
                             onChange={(e) => setAmount(e.target.value)}
                             required
+                            disabled={loading} // Disable input while loading
                         />
                     </label>
                 </div>
@@ -63,6 +74,7 @@ const PaymentForm = ({ orderId }) => {
                         <select
                             value={paymentMethod}
                             onChange={(e) => setPaymentMethod(e.target.value)}
+                            disabled={loading} // Disable input while loading
                         >
                             <option value="Credit Card">Credit Card</option>
                             <option value="PayPal">PayPal</option>

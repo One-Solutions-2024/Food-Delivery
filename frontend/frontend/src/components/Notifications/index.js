@@ -1,8 +1,6 @@
-//frontend/src/components/Notifications.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, ScrollView } from 'react-native';
 import * as Notifications from 'expo-notifications';
-import * as Permissions from 'expo-permissions';
 
 const NotificationsComponent = () => {
   const [notification, setNotification] = useState(false);
@@ -20,11 +18,12 @@ const NotificationsComponent = () => {
   }, []);
 
   const registerForPushNotifications = async () => {
-    const { status: existingStatus } = await Permissions.getAsync(Permissions.NOTIFICATIONS);
+    // Check notification permissions
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
     let finalStatus = existingStatus;
 
     if (existingStatus !== 'granted') {
-      const { status } = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+      const { status } = await Notifications.requestPermissionsAsync();
       finalStatus = status;
     }
 
@@ -33,9 +32,9 @@ const NotificationsComponent = () => {
       return;
     }
 
+    // Get push notification token
     const token = (await Notifications.getExpoPushTokenAsync()).data;
-    console.log('Push Notification Token:', token); // Send this token to your backend for pushing notifications
-    // You can make an API call to save the token on your backend
+    console.log('Push Notification Token:', token); // Send this token to your backend
   };
 
   const handleDismissNotification = () => {

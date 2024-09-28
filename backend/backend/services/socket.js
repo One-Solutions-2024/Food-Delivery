@@ -1,4 +1,6 @@
 const socketIO = require('socket.io');
+const server = require('./server'); // This will cause a circular dependency
+
 
 const setupSocket = (server) => {
   const io = socketIO(server);

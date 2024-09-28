@@ -136,35 +136,83 @@ exports.getDeliveryBoyById = async (req, res) => {
 };
 
 // Login delivery boy
-exports.loginDeliveryBoy = [
-    // Validation rules
-    check('phoneNumber').isMobilePhone().withMessage('Invalid phone number'),
-    check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
-
-    async (req, res) => {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            return res.status(400).json({ errors: errors.array() });
-        }
-
-        const { phoneNumber, password } = req.body;
-
-        try {
-            const deliveryBoy = await DeliveryBoy.findOne({ phoneNumber });
-            if (!deliveryBoy) {
-                return res.status(404).json({ message: 'Delivery boy not found' });
-            }
-
-            const isMatch = await bcrypt.compare(password, deliveryBoy.password);
-            if (!isMatch) {
-                return res.status(400).json({ message: 'Invalid credentials' });
-            }
-
-            const token = jwt.sign({ id: deliveryBoy._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-            res.json({ token, deliveryBoy: { id: deliveryBoy._id, name: deliveryBoy.name } });
-        } catch (error) {
-            res.status(500).json({ message: 'Error logging in', error });
-        }
+exports.loginDeliveryBoy = async (req, res) => {
+    // Validate request
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
     }
-];
+
+    const { phoneNumber, password } = req.body;
+
+    try {
+        // Check if delivery boy exists
+        const deliveryBoy = await DeliveryBoy.findOne({ phoneNumber });
+        if (!deliveryBoy) {
+            return res.status(404).json({ message: 'Delivery boy not found' });
+        }
+
+        // Check if password matches
+        const isMatch = await bcrypt.compare(password, deliveryBoy.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Invalid credentials' });
+        }
+
+        // Generate JWT token
+        const token = jwt.sign({ id: deliveryBoy._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        // Respond with the token and delivery boy data
+        res.json({ token, deliveryBoy: { id: deliveryBoy._id, name: deliveryBoy.name } });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error logging in', error });
+    }
+};
+
+// Notify delivery boys about new orders
+exports.notifyDeliveryBoys = async (req, res) => {
+    try {
+        const { orderDetails } = req.body;
+
+        if (!orderDetails) {
+            return res.status(400).json({ message: 'Order details are required' });
+        }
+
+        // Assuming you have a DeliveryBoy model or service to find delivery boys
+        const deliveryBoys = await DeliveryBoy.find({ available: true }); // Get available delivery boys
+
+        if (deliveryBoys.length === 0) {
+            return res.status(404).json({ message: 'No available delivery boys found' });
+        }
+
+        // Notify the delivery boys (use WebSocket, email, SMS, etc.)
+        // For example, if using WebSocket:
+        deliveryBoys.forEach((deliveryBoy) => {
+            // Logic to notify delivery boy via WebSocket or other service
+            webSocketService.notify(deliveryBoy.id, orderDetails);
+        });
+
+        res.status(200).json({ message: 'Delivery boys notified successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error notifying delivery boys', error });
+    }
+};
+
+
+exports.updateDeliveryBoy = async (req, res) => {
+    try {
+        const { id } = req.params; // Delivery boy ID from route parameter
+        const updateData = req.body; // Data to update from request body
+
+        // Find and update the delivery boy in the database
+        const deliveryBoy = await DeliveryBoy.findByIdAndUpdate(id, updateData, { new: true });
+
+        if (!deliveryBoy) {
+            return res.status(404).json({ message: 'Delivery boy not found' });
+        }
+
+        res.status(200).json({ message: 'Delivery boy updated successfully', deliveryBoy });
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating delivery boy', error });
+    }
+};

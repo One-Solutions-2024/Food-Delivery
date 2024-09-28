@@ -133,17 +133,7 @@ export const updateDeliveryLocation = async (location) => {
   }
 };
 
-// Exporting the API functions for direct use
-export {
-  fetchRestaurants,
-  fetchRestaurantById,
-  fetchOrders,
-  fetchOrderById,
-  updateOrderStatus,
-  registerRestaurant,
-  placeOrder,
-  updateDeliveryLocation,
-};
+
 
 // Exporting the api instance for direct use
 export default api;

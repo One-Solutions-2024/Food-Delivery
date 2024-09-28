@@ -67,5 +67,8 @@ router.post('/payment', async (req, res, next) => {
     }
 });
 
+// POST route for processing payment
+router.post('/process', processPayment);
+
 // Export the router
 module.exports = router;

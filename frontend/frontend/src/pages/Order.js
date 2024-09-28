@@ -1,9 +1,8 @@
 // frontend/src/pages/Order.js
 
-
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, Button, StyleSheet, TouchableOpacity } from 'react-native';
-import api from '../services/api';
+import api from '../services/api'; // Make sure this path is correct and points to your api.js
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 const Order = () => {
@@ -17,7 +16,7 @@ const Order = () => {
     const fetchMenuItems = async () => {
       try {
         const response = await api.get(`/restaurants/${restaurantId}`); // Fetch the menu for the selected restaurant
-        setMenuItems(response.data.menu);
+        setMenuItems(response.data.menu); // Ensure response.data.menu exists
       } catch (error) {
         console.error('Error fetching menu items:', error);
       }
@@ -63,7 +62,7 @@ const Order = () => {
             <Text style={styles.menuItemPrice}>${item.price.toFixed(2)}</Text>
           </TouchableOpacity>
         )}
-        keyExtractor={(item) => item.name}
+        keyExtractor={(item) => item._id.toString()} // Ensure unique key extraction
       />
       <Button title="Place Order" onPress={placeOrder} disabled={selectedItems.length === 0} />
     </View>

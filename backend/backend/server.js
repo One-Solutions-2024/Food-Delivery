@@ -10,14 +10,12 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const deliveryBoyRoutes = require('./routes/deliveryBoyRoutes');
 const restaurantRoutes = require('./routes/restaurantRoutes');
-const http = require('http');
+const http = require('http').createServer(app);
 const socketIo = require('socket.io');
 const logger = require('./utils/logger'); // Import your logger utility
-const errorHandler = require('./middleware/errorHandler'); // Error handling middleware
-
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server); // Initialize Socket.IO
+const setupSocket = require('./utils/socket'); // Socket setup file
 
 // Middleware
 app.use(cors()); // Enable CORS
@@ -53,11 +51,15 @@ app.use('/api/restaurants', restaurantRoutes);
 app.use(errorHandler);
 
 // Start the server
-const port = process.env.PORT || 5000;
 
-server.listen(port, () => {
-    logger.info(`Server is running on port ${port}`);
+// Setting up middlewares, routes, etc.
+const io = setupSocket(http);  // Avoid circular dependency
+
+const PORT = process.env.PORT || 3000;
+http.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
+setupSocket(server);
 // Export the Socket.IO instance
 module.exports.io = io;

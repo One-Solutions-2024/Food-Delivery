@@ -1,9 +1,12 @@
 //frontend/src/components/OrderDetails.js
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, Button } from 'react-native';
-import { getOrderDetails } from '../services/api'; // Adjust the import based on your file structure
+import api from '../../services/api'; 
+import { useNavigation } from '@react-navigation/native';
 
 const OrderDetails = ({ route }) => {
+  const navigation = useNavigation(); // Get the navigation object
+
   const { orderId } = route.params; // Get order ID from route parameters
   const [orderDetails, setOrderDetails] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -12,7 +15,7 @@ const OrderDetails = ({ route }) => {
   useEffect(() => {
     const fetchOrderDetails = async () => {
       try {
-        const data = await getOrderDetails(orderId);
+        const data = await api.orderId;
         setOrderDetails(data);
       } catch (err) {
         setError(err.message);

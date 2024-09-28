@@ -1,21 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, Button, StyleSheet, Alert } from 'react-native';
-import { getAssignedOrders, updateOrderStatus } from '../services/api';
-import { useNotifications } from '../hooks/useNotifications'; // Import the notifications hook
+import { fetchOrders, updateOrderStatus } from '../services/api'; // Correct import
 
 const DeliveryScreen = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Use the custom hook to register for notifications
-  useNotifications();
-
   useEffect(() => {
     // Fetch assigned orders from backend
-    const fetchOrders = async () => {
+    const fetchAssignedOrders = async () => {
       try {
-        const assignedOrders = await getAssignedOrders();
-        setOrders(assignedOrders);
+        const allOrders = await fetchOrders();
+        setOrders(allOrders); // You can filter orders here if necessary
       } catch (error) {
         console.error('Error fetching orders:', error);
         Alert.alert('Error', 'Failed to load orders. Please try again.');
@@ -24,7 +20,7 @@ const DeliveryScreen = () => {
       }
     };
 
-    fetchOrders();
+    fetchAssignedOrders();
   }, []);
 
   // Handle marking an order as delivered

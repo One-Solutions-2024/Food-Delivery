@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { check } = require('express-validator');
 const deliveryBoyController = require('../controllers/deliveryBoyController');
 const auth = require('../middleware/auth'); // Import the auth middleware
 const rateLimit = require('express-rate-limit');
@@ -30,7 +31,10 @@ const loginLimiter = rateLimit({
     message: 'Too many login attempts. Please try again after 15 minutes.'
 });
 
-router.post('/login', loginLimiter, deliveryBoyController.loginDeliveryBoy);
-
+// Validation rules applied as middleware in the route
+router.post('/login', [
+    check('phoneNumber').isMobilePhone().withMessage('Invalid phone number'),
+    check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long')
+], loginLimiter, deliveryBoyController.loginDeliveryBoy);
 // Export the router
 module.exports = router;
