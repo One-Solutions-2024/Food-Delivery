@@ -1,0 +1,19 @@
+{
+  "name": "delivery-app",
+  "version": "1.0.0",
+  "description": "delivery app for delivery boys",
+  "main": "index.js",
+  "scripts": {
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios"
+  },
+  "dependencies": {
+    "@react-navigation/native": "^6.1.18",
+    "@react-navigation/stack": "^6.4.1",
+    "react": "^17.0.1",
+    "react-native": "0.64.3"
+  },
+  "author": "",
+  "license": "ISC"
+}
